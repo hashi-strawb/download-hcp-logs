@@ -9,7 +9,7 @@ USE AT YOUR OWN PERIL
 
 HCP Vault has audit logs! Woo!
 
-HCP Vault only supports streaming those to a small number of places! Boo!
+HCP Vault only supports streaming those to [a small number of places](https://www.hashicorp.com/blog/hcp-vault-adds-3-new-observability-integrations)! Boo!
 
 HCP Vault also only supports downloading audit logs through the HCP Portal manually! Double boo!
 
