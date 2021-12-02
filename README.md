@@ -142,3 +142,13 @@ INFO[0021] Download URL: https://hcp-data-plane-blob-prod.s3.amazonaws.com/REDAC
 }
 ```
 
+
+## TODO
+
+* [ ] Refactor the whole thing
+* [ ] Use Location from `vault.NewListParams()` by cluster-id rather than hard-coding
+* [ ] Download logs in a loop
+  * [ ] Use an external progress file to keep track of the last timestamp which was pulled
+* [ ] Optionally output logs to a file
+* [ ] Support for .env for env vars
+  * [ ] Sample Vault Agent config in README to populate .env
