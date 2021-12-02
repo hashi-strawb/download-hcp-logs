@@ -1,8 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"fmt"
-	"log"
+	"io"
+	"net/http"
+
+	log "github.com/sirupsen/logrus"
+
 	"os"
 	"time"
 
@@ -46,9 +52,9 @@ func main() {
 		log.Fatal(err)
 	}
 	if len(resp3.Payload.Clusters) > 0 {
-		fmt.Printf("Response: %#v\n\n", resp3.Payload.Clusters[0])
+		log.Infof("Response: %v", resp3.Payload.Clusters[0])
 	} else {
-		fmt.Printf("Response: %#v\n\n", resp3.Payload)
+		log.Infof("Response: %v", resp3.Payload)
 	}
 
 	//
@@ -82,11 +88,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Response: %#v\n\n", respAudit.Payload.LogID)
+	log.Infof("Log ID: %v", respAudit.Payload.LogID)
 
 	//
 	// Wait for log to be available, then download
 	//
+
+	downloadURL := ""
 
 	for {
 		// Based on https://github.com/hashicorp/cloud-vault-service/blob/057972c079c7f3a82cd6011229d516f31e1672cb/test/e2e/smoke_test.go#L814-L821
@@ -99,18 +107,36 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("State: %v\n", auditStatus.Payload.Log.State)
+		log.Infof("State: %v", auditStatus.Payload.Log.State)
 		if !contains([]string{"PENDING", "CREATING"},
 			string(auditStatus.Payload.Log.State)) {
 
-			fmt.Printf("Response: %#v\n\n", auditStatus.Payload.Log)
+			log.Infof("Log Payload: %v", auditStatus.Payload.Log)
 
-			fmt.Printf("Download URL: %#v\n\n", auditStatus.Payload.Log.DownloadURL)
+			downloadURL = auditStatus.Payload.Log.DownloadURL
 			break
 		}
 
 		time.Sleep(10 * time.Second)
 	}
+	log.Infof("Download URL: %v", downloadURL)
+
+	gzippedLogsResponse, err := http.Get(downloadURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer gzippedLogsResponse.Body.Close()
+
+	if gzippedLogsResponse.StatusCode == http.StatusOK {
+		gzippedLogs, err := io.ReadAll(gzippedLogsResponse.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		logs, err := gunzip(gzippedLogs)
+
+		fmt.Printf("%s\n", logs)
+	}
+
 }
 
 func contains(s []string, e string) bool {
@@ -120,4 +146,22 @@ func contains(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func gunzip(data []byte) ([]byte, error) {
+	b := bytes.NewBuffer(data)
+
+	var r io.Reader
+	r, err := gzip.NewReader(b)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	var resB bytes.Buffer
+	_, err = resB.ReadFrom(r)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return resB.Bytes(), nil
 }

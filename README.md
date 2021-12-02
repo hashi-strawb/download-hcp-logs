@@ -2,6 +2,9 @@
 
 WARNING: This makes use of unstable preview APIs which could change at any time!
 
+This is also meant as an example of how pulling logs from the HCP Vault APIs could work.
+You probably do not want to use this directly. Instead, fork the repo, and customise it to your requirements.
+
 USE AT YOUR OWN PERIL
 
 
@@ -47,16 +50,95 @@ go run main.go
 Example output:
 
 ```
-$ go run main.go
-Response: &models.HashicorpCloudVault20201125Cluster{Config:(*models.HashicorpCloudVault20201125ClusterConfig)(0xc0004acfc0), CreatedAt:strfmt.DateTime{wall:0x1464cf58, ext:63773966983, loc:(*time.Location)(nil)}, CurrentVersion:"v1.8.5", DNSNames:(*models.HashicorpCloudVault20201125ClusterDNSNames)(0xc0000e2040), ID:"vault-cluster", Location:(*models.HashicorpCloudLocationLocation)(0xc0000bb9e0), State:"RUNNING"}
+$ go run main.go | head -n 1 | jq .
+INFO[0000] Response: &{0xc0000be1e0 2021-12-01T14:49:43.342Z v1.8.5 0xc00007ae20 vault-cluster 0xc000250d80 RUNNING}
+INFO[0001] Log ID: 639d8cc4-52d6-4bd8-ba86-9aef948e8348
+INFO[0001] State: PENDING
+INFO[0011] State: CREATING
+INFO[0021] State: READY
+INFO[0021] Log Payload: &{vault-cluster https://hcp-data-plane-blob-prod.s3.amazonaws.com/REDACTED 2021-12-02T10:12:03.669Z 2021-12-02T10:12:03.669Z 639d8cc4-52d6-4bd8-ba86-9aef948e8348 2021-12-02T10:11:50.905Z 2021-12-02T09:41:50.905Z 0xc0001022d0 READY}
+INFO[0021] Download URL: https://hcp-data-plane-blob-prod.s3.amazonaws.com/REDACTED
 
-Response: "a6c7a6d5-0fa5-4193-9647-ad70f13f34da"
-
-State: PENDING
-State: CREATING
-State: READYResponse: &models.HashicorpCloudVault20201125AuditLog{ClusterID:"vault-cluster", DownloadURL:"https://hcp-data-plane-blob-prod.s3.amazonaws.com/225af347-0fd9-41b1-8571-bed0d3ef665e/auditlogs/98b8bfa8-3115-4831-a598-434d02f83786?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAZDKPXWD4FHMAK4HM%2F20211201%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20211201T160154Z&X-Amz-Expires=900&X-Amz-Security-Token=FwoGZXIvYXdzEFEaDIKka9XFbRoODVjZSiLjAVJ4U5tMj8mqcuc9c2hzVpvCy6jj2TtLieIkyjTRbFOuqWmLPgdjMkg56tLc7dQBrxBwG3qjXxVQQ%2Fll%2BCsANoiLH6WoHhBZUYz3S0SthOnYSU5E66oTUhpjOMnglKud4drTDYKR2Ljgvpjz0sAmS0Ynko9CVHRwbJIAefpbj4p0MKnVCI6IzmGazfNJxsvIO8EFtG7UbVjDf2tcKcm90oroU0W3tdoHdA6NE6JXM2AuN3M4vsMQfHCqLtjUJ%2F6xxIL3n4yTH6SulQex4IXXbMSzZC5z04c8ZLVrbcs8UhFTZhDIKNGono0GMi2kWNkUFLqdPY3%2FhdLOKeKv%2FTNjrqVW5FSWHQtdJ3LMrTAKfV9jmBRorwPKnFY%3D&X-Amz-SignedHeaders=host&X-Amz-Signature=246779b825d4f1bd9b410bb8413a48444a22c04f690b1a6dc2f99cf2de945c41", ExpiresAt:strfmt.DateTime{wall:0x2c99e860, ext:63773971304, loc:(*time.Location)(nil)}, FinishedAt:strfmt.DateTime{wall:0x2c99e860, ext:63773971304, loc:(*time.Location)(nil)}, ID:"a6c7a6d5-0fa5-4193-9647-ad70f13f34da", IntervalEnd:strfmt.DateTime{wall:0xa7d8c0, ext:63773971294, loc:(*time.Location)(nil)}, IntervalStart:strfmt.DateTime{wall:0xa7d8c0, ext:63773969494, loc:(*time.Location)(nil)}, Location:(*models.HashicorpCloudLocationLocation)(0xc00016a450), State:"READY"}
-
-Download URL: "https://hcp-data-plane-blob-prod.s3.amazonaws.com/225af347-0fd9-41b1-8571-bed0d3ef665e/auditlogs/98b8bfa8-3115-4831-a598-434d02f83786?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAZDKPXWD4FHMAK4HM%2F20211201%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20211201T160154Z&X-Amz-Expires=900&X-Amz-Security-Token=FwoGZXIvYXdzEFEaDIKka9XFbRoODVjZSiLjAVJ4U5tMj8mqcuc9c2hzVpvCy6jj2TtLieIkyjTRbFOuqWmLPgdjMkg56tLc7dQBrxBwG3qjXxVQQ%2Fll%2BCsANoiLH6WoHhBZUYz3S0SthOnYSU5E66oTUhpjOMnglKud4drTDYKR2Ljgvpjz0sAmS0Ynko9CVHRwbJIAefpbj4p0MKnVCI6IzmGazfNJxsvIO8EFtG7UbVjDf2tcKcm90oroU0W3tdoHdA6NE6JXM2AuN3M4vsMQfHCqLtjUJ%2F6xxIL3n4yTH6SulQex4IXXbMSzZC5z04c8ZLVrbcs8UhFTZhDIKNGono0GMi2kWNkUFLqdPY3%2FhdLOKeKv%2FTNjrqVW5FSWHQtdJ3LMrTAKfV9jmBRorwPKnFY%3D&X-Amz-SignedHeaders=host&X-Amz-Signature=246779b825d4f1bd9b410bb8413a48444a22c04f690b1a6dc2f99cf2de945c41"
+{
+  "time": "2021-12-02T09:01:09.745135603Z",
+  "type": "request",
+  "auth": {
+    "client_token": "hmac-sha256:d443d8ce8764c852c2b4b202f7c2d4a70d575c3353b5ad1759c5629bdcbdea55",
+    "accessor": "hmac-sha256:78313a654c3363a9301496d5440e44468c039f84b1bc285db050f9ab6722d1f0",
+    "display_name": "jwt-msp",
+    "policies": [
+      "default",
+      "msp"
+    ],
+    "token_policies": [
+      "default",
+      "msp"
+    ],
+    "metadata": {
+      "role": "msp"
+    },
+    "entity_id": "c4e52b80-f836-7453-734d-1c0ef6c3ab23",
+    "token_type": "service",
+    "token_ttl": 600,
+    "token_issue_time": "2021-12-02T09:01:08Z"
+  },
+  "request": {
+    "id": "cae52ccd-5564-4a7a-cd4d-f8cc025bca17",
+    "operation": "read",
+    "mount_type": "kv",
+    "client_token": "hmac-sha256:d443d8ce8764c852c2b4b202f7c2d4a70d575c3353b5ad1759c5629bdcbdea55",
+    "client_token_accessor": "hmac-sha256:78313a654c3363a9301496d5440e44468c039f84b1bc285db050f9ab6722d1f0",
+    "namespace": {
+      "id": "root"
+    },
+    "path": "hcp-metadata/health",
+    "remote_address": "172.25.20.18"
+  }
+}
+{
+  "time": "2021-12-02T09:01:09.745668159Z",
+  "type": "response",
+  "auth": {
+    "client_token": "hmac-sha256:d443d8ce8764c852c2b4b202f7c2d4a70d575c3353b5ad1759c5629bdcbdea55",
+    "accessor": "hmac-sha256:78313a654c3363a9301496d5440e44468c039f84b1bc285db050f9ab6722d1f0",
+    "display_name": "jwt-msp",
+    "policies": [
+      "default",
+      "msp"
+    ],
+    "token_policies": [
+      "default",
+      "msp"
+    ],
+    "metadata": {
+      "role": "msp"
+    },
+    "entity_id": "c4e52b80-f836-7453-734d-1c0ef6c3ab23",
+    "token_type": "service",
+    "token_ttl": 600,
+    "token_issue_time": "2021-12-02T09:01:08Z"
+  },
+  "request": {
+    "id": "cae52ccd-5564-4a7a-cd4d-f8cc025bca17",
+    "operation": "read",
+    "mount_type": "kv",
+    "client_token": "hmac-sha256:d443d8ce8764c852c2b4b202f7c2d4a70d575c3353b5ad1759c5629bdcbdea55",
+    "client_token_accessor": "hmac-sha256:78313a654c3363a9301496d5440e44468c039f84b1bc285db050f9ab6722d1f0",
+    "namespace": {
+      "id": "root"
+    },
+    "path": "hcp-metadata/health",
+    "remote_address": "172.25.20.18"
+  },
+  "response": {
+    "mount_type": "kv",
+    "secret": {},
+    "data": {
+      "data": {
+        "write_timestamp": "hmac-sha256:98c697f37af07149b690257e12c6bcf14b5ffc1cb51556f5d583792a2c3ef5cf"
+      }
+    }
+  }
+}
 ```
 
-You can then download from that URL, gunzip it, then do whatever you like with your audit logs
