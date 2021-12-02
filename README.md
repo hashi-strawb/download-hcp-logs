@@ -50,7 +50,7 @@ go run main.go
 Example output:
 
 ```
-$ go run main.go | head -n 1 | jq .
+$ go run main.go | head -n 2 | jq .
 INFO[0000] Response: &{0xc0000be1e0 2021-12-01T14:49:43.342Z v1.8.5 0xc00007ae20 vault-cluster 0xc000250d80 RUNNING}
 INFO[0001] Log ID: 639d8cc4-52d6-4bd8-ba86-9aef948e8348
 INFO[0001] State: PENDING
