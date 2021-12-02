@@ -152,3 +152,4 @@ INFO[0021] Download URL: https://hcp-data-plane-blob-prod.s3.amazonaws.com/REDAC
 * [ ] Optionally output logs to a file
 * [ ] Support for .env for env vars
   * [ ] Sample Vault Agent config in README to populate .env
+* [ ] Build a binary and release
