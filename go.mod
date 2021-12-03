@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/go-openapi/strfmt v0.21.1
 	github.com/hashicorp/hcp-sdk-go v0.14.0
+	github.com/joho/godotenv v1.3.0
 	github.com/sirupsen/logrus v1.4.2
 )
 

@@ -44,7 +44,7 @@ export HCP_CLIENT_SECRET=<YOUR CLIENT SECRET HERE>
 ## Running
 
 ```
-go run main.go
+go run .
 ```
 
 Example output:
@@ -142,14 +142,76 @@ INFO[0021] Download URL: https://hcp-data-plane-blob-prod.s3.amazonaws.com/REDAC
 }
 ```
 
+## Known Limitations
+
+The API will not respect log intervals specfified with a duration of less than 1 hour.
+
+As the API is not yet stable, the example code provided in this repository will not attempt to compensate.
+
+This can be demonstrated by running:
+
+```
+go run . | jq .time
+```
+Examples of this behaviour is presented below.
+
+### Logs downloaded with greater time interval than requested
+
+For example:
+```
+INFO[1233] Downloading logs from 2021-12-03T16:38:39.656Z to 2021-12-03T16:39:50.989Z
+```
+
+* Earliest logs: "2021-12-03T16:02:44.108136091Z"
+* Latest logs: "2021-12-03T16:39:03.208386076Z"
+
+
+### Log download lag
+
+Additionally, the most recent logs downloaded may be a few minutes behind what was requested.
+
+For example:
+```
+INFO[1457] Downloading logs from 2021-12-03T16:42:13.567Z to 2021-12-03T16:43:35.028Z
+```
+
+Latest logs: "2021-12-03T16:40:47.134782281Z"
+
+### Logs around the top of the hour
+
+Also, logs around the top of the hour do not behave as you may expect.
+
+For example:
+
+```
+INFO[0071] Downloading logs from 2021-12-03T17:03:49.392Z to 2021-12-03T17:05:00.436Z
+```
+
+Earliest logs: "2021-12-03T17:02:50.099642805Z"
+
+and
+```
+INFO[0000] Downloading logs from 2021-12-03T16:55:52.026Z to 2021-12-03T17:05:52.026Z
+```
+
+Latest logs: "2021-12-03T17:04:44.576945466Z"
+
+
+
+
+
 
 ## TODO
 
+* [X] Download logs in a loop
+* [X] Support for .env for env vars
 * [ ] Refactor the whole thing
-* [ ] Use Location from `vault.NewListParams()` by cluster-id rather than hard-coding
-* [ ] Download logs in a loop
-  * [ ] Use an external progress file to keep track of the last timestamp which was pulled
+  * [ ] Use Location from `vault.NewListParams()` by cluster-id rather than hard-coding
+
+
+Out-of-scope (until a stable API is available)
+* [ ] Use an external progress file to keep track of the last timestamp which was pulled
 * [ ] Optionally output logs to a file
-* [ ] Support for .env for env vars
-  * [ ] Sample Vault Agent config in README to populate .env
+* [ ] Dedupe logs from download
 * [ ] Build a binary and release
+* [ ] Sample Vault Agent config in README to populate .env
