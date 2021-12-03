@@ -41,6 +41,8 @@ export HCP_CLIENT_ID=<YOUR CLIENT ID HERE>
 export HCP_CLIENT_SECRET=<YOUR CLIENT SECRET HERE>
 ```
 
+(you can also put these environment variables in a `.env` file, if you omit the `export`)
+
 ## Running
 
 ```
